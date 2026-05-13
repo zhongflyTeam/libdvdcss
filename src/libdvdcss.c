@@ -121,6 +121,9 @@
 #   include <windows.h>
 #   include <shlobj.h>
 #endif
+#ifdef __HAIKU__
+#   include <FindDirectory.h>
+#endif
 
 #include "dvdcss/dvdcss.h"
 
@@ -281,8 +284,17 @@ static int set_cache_directory( dvdcss_t dvdcss )
                 }
             }
 #endif /* __OS2__ */
+#ifdef __HAIKU__
+            {
+                char buf[512];
+                find_directory(B_USER_CACHE_DIRECTORY, 0, false, buf, 512);
+                snprintf( dvdcss->psz_cachefile + home_pos, PATH_MAX - home_pos,
+                          "%s/dvdcss", buf );
+		    }
+#else
             snprintf( dvdcss->psz_cachefile + home_pos, PATH_MAX - home_pos,
                       "%s/.dvdcss", psz_home );
+#endif
             dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
             psz_cache = dvdcss->psz_cachefile;
         }
