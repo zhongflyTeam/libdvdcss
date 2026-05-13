@@ -52,7 +52,7 @@ int ioctl_ReadCPRMMediaId   ( int, int *, uint8_t * );
     uint8_t p_buffer[ (SIZE)+1 ]; \
     rdc.data = (char *)p_buffer; \
     rdc.data_length = (SIZE); \
-    BeInitRDC( &rdc, (TYPE) );
+    HaikuInitRDC( &rdc, (TYPE) );
 #elif defined( SOLARIS_USCSI )
 #define INIT_USCSI( TYPE, SIZE ) \
     struct uscsi_cmd sc = { 0 }; \

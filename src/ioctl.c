@@ -103,7 +103,7 @@
  * Local prototypes, OS-specific
  *****************************************************************************/
 #if defined( __HAIKU__ )
-static void BeInitRDC ( raw_device_command *, int );
+static void HaikuInitRDC ( raw_device_command *, int );
 #elif defined( SOLARIS_USCSI )
 static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type );
 static int SolarisSendUSCSI( int fd, struct uscsi_cmd *p_sc );
@@ -1570,12 +1570,12 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
 
 #if defined( __HAIKU__ )
 /*****************************************************************************
- * BeInitRDC: initialize a RDC structure for the Haiku kernel
+ * HaikuInitRDC: initialize a RDC structure for the Haiku kernel
  *****************************************************************************
  * This function initializes a Haiku raw device command structure for future
  * use, either a read command or a write command.
  *****************************************************************************/
-static void BeInitRDC( raw_device_command *p_rdc, int i_type )
+static void HaikuInitRDC( raw_device_command *p_rdc, int i_type )
 {
     memset( p_rdc->data, 0, p_rdc->data_length );
 
@@ -1586,7 +1586,9 @@ static void BeInitRDC( raw_device_command *p_rdc, int i_type )
             break;
 
         case GPCMD_READ_DVD_STRUCTURE: case GPCMD_REPORT_KEY:
-    p_rdc->flags = B_RAW_DEVICE_DATA_IN; break; }
+            p_rdc->flags = B_RAW_DEVICE_DATA_IN;
+            break;
+    }
 
     p_rdc->command[ 0 ]      = i_type;
 
