@@ -893,6 +893,9 @@ int dvdcpxm_read ( dvdcss_t dvdcss, void *p_buffer,
         return i_ret;
     }
 
+    if ( !dvdcss->cpxm )
+        return -1;
+
     /* Decrypt the blocks we managed to read */
     for( i_index = i_ret; i_index; i_index-- )
     {
@@ -925,6 +928,9 @@ int dvdcpxm_readv ( dvdcss_t dvdcss, void *p_iovec,
     {
         return i_ret;
     }
+
+    if ( !dvdcss->cpxm )
+        return -1;
 
     /* Initialize loop for decryption */
     iov_base = _p_iovec->iov_base;
