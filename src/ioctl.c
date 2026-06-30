@@ -1150,18 +1150,20 @@ int ioctl_ReadCPRMMKBPack(int i_fd, int *p_agid, int mkb_pack, uint8_t *p_mkb_pa
     free( sptd_buf );
 
 #elif defined( DARWIN_DVD_IOCTL )
-    int h_dvd;
-    dk_dvd_read_structure_t dvd;
-    uint8_t dvdbs[CPRM_MKB_PACK_SIZE];
+    dk_dvd_read_structure_t dvd = { 0 };
+    uint8_t dvdbs[CPRM_MKB_PACK_SIZE + 4] = { 0 };
     dvd.format = CPRM_STRUCT_MKB;
     dvd.buffer = &dvdbs;
     dvd.bufferLength = sizeof( dvdbs );
-    
+    dvd.address = mkb_pack;
     dvd.grantID = *p_agid;
 
-    i_ret = ioctl( h_dvd, DKIOCDVDREADSTRUCTURE, &dvd );
+    i_ret = ioctl( i_fd, DKIOCDVDREADSTRUCTURE, &dvd );
     if ( i_ret == 0 )
-        memcpy( p_mkb_pack, dvd.buffer, sizeof( dvd.bufferLength ) );
+    {
+        *p_total_packs = dvdbs[3];
+        memcpy( p_mkb_pack, dvdbs + 4, CPRM_MKB_PACK_SIZE );
+    }
 
 #elif defined( _WIN32 )
     DWORD tmp;
