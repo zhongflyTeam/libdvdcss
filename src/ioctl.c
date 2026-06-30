@@ -1013,7 +1013,7 @@ int ioctl_ReadCPRMMediaId(int i_fd,int *p_agid, uint8_t *p_data_buffer)
     uint8_t *data_buf = malloc(CPRM_MEDIA_ID_SIZE + 4); 
 
     if (!data_buf)
-        i_ret = -1;
+        return -1;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(data_buf, 0, CPRM_MEDIA_ID_SIZE + 4);
@@ -1037,12 +1037,12 @@ int ioctl_ReadCPRMMediaId(int i_fd,int *p_agid, uint8_t *p_data_buffer)
     i_ret = ioctl(i_fd, SG_IO, &io_hdr);
     if (i_ret < 0 || io_hdr.status) {
         free(data_buf);
-        i_ret = -1;
+        return -1;
     }
 
     memcpy(p_data_buffer, data_buf + 4, CPRM_MEDIA_ID_SIZE);
     free(data_buf);
-    i_ret = 0;
+    return 0;
 
 #elif defined( _WIN32 )
     DWORD tmp;
