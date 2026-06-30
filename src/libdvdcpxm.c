@@ -550,16 +550,11 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
             /* the input is the media key block */
             p_mkb = p_input;
             if ( cppm_set_id_album( dvdcss ) == 0 )
-            {
-                if ( p_mkb )
-                {
-                    ret = process_mkb( p_mkb, cppm_device_keys,
-                            sizeof(cppm_device_keys) / sizeof(*cppm_device_keys),
-                            &dvdcss->cpxm->media_key );
-                    free(p_mkb);
-                    if (ret) break;
-                }
-            }
+                ret = process_mkb( p_mkb, cppm_device_keys,
+                        sizeof(cppm_device_keys) / sizeof(*cppm_device_keys),
+                        &dvdcss->cpxm->media_key );
+            free( p_mkb );
+            if ( ret ) break;
             break;
         case COPYRIGHT_PROTECTION_CPRM:
             if ( cprm_set_id_media( dvdcss ) == 0 )
