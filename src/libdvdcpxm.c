@@ -370,21 +370,25 @@ uint8_t *cprm_get_mkb( dvdcss_t dvdcss )
 {
     uint8_t mkb_pack[CPRM_MKB_PACK_SIZE];
     uint8_t *p_mkb = NULL;
-    int mkb_packs, i;
+    int mkb_packs, total_packs, i;
     mkb_packs = 16;
 
     if ( ioctl_ReadCPRMMKBPack( dvdcss->i_fd, &dvdcss->css.i_agid, 0,
                                 (uint8_t *) mkb_pack, &mkb_packs ) )
         return NULL;
 
-    p_mkb = malloc( mkb_packs * CPRM_MKB_PACK_SIZE - 16 );
+    total_packs = mkb_packs;
+    if ( total_packs < 1 )
+        return NULL;
+
+    p_mkb = malloc( total_packs * CPRM_MKB_PACK_SIZE - 16 );
 
     if (!p_mkb)
         return NULL;
 
     memcpy( p_mkb, &mkb_pack[16], CPRM_MKB_PACK_SIZE - 16 );
 
-    for ( i = 1; i < mkb_packs; i++ )
+    for ( i = 1; i < total_packs; i++ )
     {
         if ( ioctl_ReadCPRMMKBPack( dvdcss->i_fd,&dvdcss->css.i_agid, i,
                     (uint8_t *) p_mkb + i * CPRM_MKB_PACK_SIZE - 16, &mkb_packs ) )
