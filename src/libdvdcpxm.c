@@ -50,6 +50,11 @@
 #define IS_SYNC_CODE(word) \
         ( (word)[0] == 0x00 && (word)[1] == 0x00 && (word)[2] == 0x01 && (word)[3] == 0xBA )
 
+#define PACK_HEADER_SIZE     14
+#define PES_HEADER_SIZE      6
+#define PES_PAYLOAD_OFFSET   9
+#define AUDIO_SUBHEADER_SIZE 13
+
 typedef struct cpxm_cache {
     p_cpxm cpxm;
     dev_t st_dev;
@@ -633,15 +638,16 @@ void mpeg2_reset_pes_scrambling_control( uint8_t *p_block )
 void mpeg2_reset_cci( uint8_t *p_block )
 {
     uint8_t *p_mlp_pcm, *p_curr;
+    uint8_t *p_end = p_block + DVDCPXM_BLOCK_SIZE;
     int pes_sid;
     int pes_len;
 
     p_curr = p_block;
     if ( IS_SYNC_CODE(p_block) )
     {
-        p_curr += 14 + (p_curr[13] & 0x07);
+        p_curr += PACK_HEADER_SIZE + (p_curr[13] & 0x07);
 
-        while ( p_curr < p_block + DVDCPXM_BLOCK_SIZE )
+        while ( p_curr + PES_HEADER_SIZE <= p_end )
         {
             pes_len = (p_curr[4] << 8) + p_curr[5];
 
@@ -650,9 +656,10 @@ void mpeg2_reset_cci( uint8_t *p_block )
                 p_curr[2] == 0x01)
             {
                 pes_sid = p_curr[3];
-                if ( pes_sid == 0xbd ) // private stream 1
+                if ( pes_sid == 0xbd && p_curr + PES_PAYLOAD_OFFSET <= p_end ) // private stream 1
                 {
-                    p_mlp_pcm = p_curr + 9 + p_curr[8];
+                    p_mlp_pcm = p_curr + PES_PAYLOAD_OFFSET + p_curr[8];
+                    if ( p_mlp_pcm + AUDIO_SUBHEADER_SIZE <= p_end )
                     switch ( p_mlp_pcm[0] )  // stream id
                     {
                     case 0xa0: // PCM stream id
@@ -663,7 +670,7 @@ void mpeg2_reset_cci( uint8_t *p_block )
                         break;
                     }
                 }
-                p_curr += 6 + pes_len;
+                p_curr += PES_HEADER_SIZE + pes_len;
             }
             else break;
         }
