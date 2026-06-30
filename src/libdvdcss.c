@@ -556,6 +556,7 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
 
     dvdcss->cpxm = NULL;
     dvdcss->cpxm_was_cached = 0;
+    dvdcss->media_type = COPYRIGHT_PROTECTION_NONE;
 
     /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
     set_verbosity( dvdcss );

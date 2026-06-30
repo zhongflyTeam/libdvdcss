@@ -100,7 +100,7 @@ int dvdcss_test( dvdcss_t dvdcss )
     const char *psz_type, *psz_rpc;
     char psz_region[17];
     char *p_region = psz_region;
-    int i_ret, i_copyright, i_type, i_mask, i_rpc, i_region;
+    int i_ret, i_copyright = 0, i_type, i_mask, i_rpc, i_region;
 
     i_ret = ioctl_ReadCopyright( dvdcss->i_fd, 0 /* i_layer */, &i_copyright );
 
