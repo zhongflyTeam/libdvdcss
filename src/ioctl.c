@@ -1067,18 +1067,16 @@ int ioctl_ReadCPRMMediaId(int i_fd,int *p_agid, uint8_t *p_data_buffer)
             CPRM_MEDIA_ID_SIZE);
 
 #elif defined( DARWIN_DVD_IOCTL )
-    int h_dvd;
-    dk_dvd_read_structure_t dvd;
-    uint8_t dvdbs[CPRM_MEDIA_ID_SIZE + 4];
+    dk_dvd_read_structure_t dvd = { 0 };
+    uint8_t dvdbs[CPRM_MEDIA_ID_SIZE + 4] = { 0 };
     dvd.format = CPRM_STRUCT_MEDIA_ID;
     dvd.buffer = &dvdbs;
-    dvd.bufferLength = sizeof(dvdbs);
-    
+    dvd.bufferLength = sizeof( dvdbs );
     dvd.grantID = *p_agid;
 
-    i_ret = ioctl( h_dvd, DKIOCDVDREADSTRUCTURE, &dvd );
-    if (i_ret == 0)
-        memcpy(p_data_buffer, dvd.buffer, sizeof(dvd.bufferLength));
+    i_ret = ioctl( i_fd, DKIOCDVDREADSTRUCTURE, &dvd );
+    if ( i_ret == 0 )
+        memcpy( p_data_buffer, dvdbs + 4, CPRM_MEDIA_ID_SIZE );
 
 #elif defined( __OS2__ )
     INIT_SSC(GPCMD_READ_DVD_STRUCTURE, CPRM_MEDIA_ID_SIZE + 4);
