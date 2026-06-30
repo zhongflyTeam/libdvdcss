@@ -1113,7 +1113,7 @@ int ioctl_ReadCPRMMKBPack(int i_fd, int *p_agid, int mkb_pack, uint8_t *p_mkb_pa
     uint8_t sense[32] = { 0 };
 
     if ( !sptd_buf )
-        i_ret = -1;
+        return -1;
 
     memset( sptd_buf, 0, CPRM_MKB_PACK_SIZE + 4 );
 
@@ -1144,7 +1144,7 @@ int ioctl_ReadCPRMMKBPack(int i_fd, int *p_agid, int mkb_pack, uint8_t *p_mkb_pa
     if ( i_ret < 0 || io_hdr.status )
     {
         free( sptd_buf );
-        i_ret = -1;
+        return -1;
     }
 
     *p_total_packs = sptd_buf[3];
