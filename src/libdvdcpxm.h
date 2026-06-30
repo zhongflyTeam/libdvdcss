@@ -45,7 +45,7 @@
 #define CPRM_MKB_PACK_SIZE   24576
 #define CPRM_MKB_SIZE        (16 * CPRM_MKB_PACK_SIZE - 16)
 
-#define CCI_BYTE 0x00;
+#define CCI_BYTE 0x00
 
 #include <stdint.h>
 #include "dvdcss/dvdcss.h"
