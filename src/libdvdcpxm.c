@@ -515,7 +515,8 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
     {
         cpxm_cache *cpxm_iterator = g_cpxm_cache;
         struct stat file_stat;
-        fstat( dvdcss->i_fd, &file_stat );
+        if ( fstat( dvdcss->i_fd, &file_stat ) != 0 )
+            return -1;
         while ( cpxm_iterator != NULL )
         {
             /* look for match in cache */
@@ -592,7 +593,11 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
         return -1;
 
     struct stat stat;
-    fstat(dvdcss->i_fd, &stat);
+    if ( fstat(dvdcss->i_fd, &stat) != 0 )
+    {
+        free( cpxm_cache_addition );
+        return dvdcss->media_type;
+    }
 
     /* create cache node */
     cpxm_cache_addition->cpxm = dvdcss->cpxm;
