@@ -63,6 +63,19 @@ typedef struct cpxm_cache {
 
 cpxm_cache *g_cpxm_cache = NULL;
 
+static int cpxm_is_cached( p_cpxm cpxm )
+{
+    cpxm_cache *it = g_cpxm_cache;
+
+    while ( it != NULL )
+    {
+        if ( it->cpxm == cpxm )
+            return 1;
+        it = it->p_next;
+    }
+    return 0;
+}
+
 /* these values are used by libdvdcpxm to process the Media Key Block */
 /* They are present inside DVD-Audio players and are used in conjunction with keys taken from the disc in order to generate the final media_key used by the C2 Cypher */
 uint32_t sbox_f[256];
@@ -823,40 +836,37 @@ int dvdcpxm_decrypt( p_cpxm cpxm, int media_type,void *p_buffer, int flags )
 /* this function is used internally */
 int dvdcpxm_close_internal ( dvdcss_t dvdcss )
 {
-    if( dvdcss->cpxm )
-        free( dvdcss->cpxm );
+    p_cpxm cpxm = dvdcss->cpxm;
 
-    if ( !g_cpxm_cache )
-        return 0;
-
-    /* check ID */
-    struct stat stat;
-    if ( fstat( dvdcss->i_fd, &stat ) < 0 )
-        return -1;
-
-    cpxm_cache *prev = NULL;
-    cpxm_cache *cpxm_iterator = g_cpxm_cache;
-
-    /* remove only if cached */
-    while ( cpxm_iterator != NULL && dvdcss->cpxm_was_cached )
+    if ( cpxm != NULL && dvdcss->cpxm_was_cached )
     {
-        cpxm_cache *next = cpxm_iterator->p_next;
-        if ( cpxm_iterator->st_dev == stat.st_dev )
+        cpxm_cache *prev = NULL;
+        cpxm_cache *it = g_cpxm_cache;
+
+        while ( it != NULL )
         {
-            if ( prev == NULL )
-                g_cpxm_cache = next;
-            else
-                prev->p_next = next;
+            cpxm_cache *next = it->p_next;
+            if ( it->cpxm == cpxm )
+            {
+                if ( prev == NULL )
+                    g_cpxm_cache = next;
+                else
+                    prev->p_next = next;
 
-            free( cpxm_iterator->cpxm );
-            free( cpxm_iterator );
-            break;
+                free( it->cpxm );
+                free( it );
+                break;
+            }
+            prev = it;
+            it = next;
         }
-        else
-            prev = cpxm_iterator;
-
-        cpxm_iterator = next;
     }
+    else if ( cpxm != NULL && !cpxm_is_cached( cpxm ) )
+    {
+        free( cpxm );
+    }
+
+    dvdcss->cpxm = NULL;
     return 0;
 }
 
