@@ -1,7 +1,7 @@
 /**
  * \file libdvdcpxm.h
  * \author Maxim V.Anisiutkin <Maxim.Anisiutkin@gmail.com>
- * \author Saifelden Ismail <saifelden@gmail.com>
+ * \author Saifelden Ismail <saifeldenmi@gmail.com>
  *
  * \brief Integration of libdvdcpxm functionality into libdvdcss.
  *
