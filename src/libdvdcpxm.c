@@ -591,21 +591,21 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
                             sizeof( cprm_device_keys ) / sizeof( *cprm_device_keys ),
                             &dvdcss->cpxm->media_key );
                     free( p_mkb );
-                    if (ret) break;
                 }
 
+                if ( ret == 0 )
+                {
+                    /* get the media unique key */
+                    uint64_t k_mu = c2_g( cpxm->media_key, cpxm->id_media ) & 0x00ffffffffffffff;
 
-                /* get the media unique key */
-                uint64_t k_mu = c2_g( cpxm->media_key, cpxm->id_media ) & 0x00ffffffffffffff;
+                    /* decrypt the encrypted title key */
+                    uint64_t k_te;
+                    READ64_BE( k_te , p_input );
+                    uint64_t k_t = c2_dec( k_mu, k_te ) & 0x00ffffffffffffff;
 
-                /* decrypt the encrypted title key */
-                uint64_t k_te;
-                READ64_BE( k_te , p_input );
-                uint64_t k_t = c2_dec( k_mu, k_te ) & 0x00ffffffffffffff;
-
-                /* store decrypted title key for vr decryption */
-                cpxm->vr_k_t = k_t;
-
+                    /* store decrypted title key for vr decryption */
+                    cpxm->vr_k_t = k_t;
+                }
             }
             break;
     }
