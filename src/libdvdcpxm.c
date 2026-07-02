@@ -58,6 +58,7 @@
 typedef struct cpxm_cache {
     p_cpxm cpxm;
     dev_t st_dev;
+    int refcount;
     struct cpxm_cache * p_next;
 } cpxm_cache;
 
@@ -544,7 +545,8 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
             if ( file_stat.st_dev == cpxm_iterator->st_dev )
             {
                 dvdcss->cpxm = cpxm_iterator->cpxm;
-                dvdcss->cpxm_was_cached = 0;
+                cpxm_iterator->refcount++;
+                dvdcss->cpxm_was_cached = 1;
                 return dvdcss->media_type;
             }
             cpxm_iterator = cpxm_iterator->p_next;
@@ -624,6 +626,7 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
     /* create cache node */
     cpxm_cache_addition->cpxm = dvdcss->cpxm;
     cpxm_cache_addition->st_dev = stat.st_dev;
+    cpxm_cache_addition->refcount = 1;
     cpxm_cache_addition->p_next = NULL;
 
     /* copy over so needs to be set only once */
@@ -857,6 +860,9 @@ int dvdcpxm_close_internal ( dvdcss_t dvdcss )
             cpxm_cache *next = it->p_next;
             if ( it->cpxm == cpxm )
             {
+                if ( --it->refcount > 0 )
+                    break;
+
                 if ( prev == NULL )
                     g_cpxm_cache = next;
                 else
