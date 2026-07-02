@@ -610,6 +610,13 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
             break;
     }
 
+    if ( ret != 0 )
+    {
+        free( dvdcss->cpxm );
+        dvdcss->cpxm = NULL;
+        return dvdcss->media_type;
+    }
+
     /* store in cache */
     cpxm_cache* cpxm_cache_addition = malloc(sizeof(cpxm_cache));
 
