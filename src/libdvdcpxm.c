@@ -392,7 +392,7 @@ uint8_t *cprm_get_mkb( dvdcss_t dvdcss, size_t *p_mkb_len )
         return NULL;
 
     total_packs = mkb_packs;
-    if ( total_packs < 1 )
+    if ( total_packs < 1 || total_packs > 16 )
         return NULL;
 
     *p_mkb_len = (size_t) total_packs * CPRM_MKB_PACK_SIZE - 16;
