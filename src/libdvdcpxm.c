@@ -379,7 +379,7 @@ void c2_dcbc( void *p_buffer, uint64_t key, int length )
 }
 
 /* for CPPM, libdvdread is responsible for retrieving the Media Key Block */
-uint8_t *cprm_get_mkb( dvdcss_t dvdcss )
+uint8_t *cprm_get_mkb( dvdcss_t dvdcss, size_t *p_mkb_len )
 {
     uint8_t mkb_pack[CPRM_MKB_PACK_SIZE];
     uint8_t *p_mkb = NULL;
@@ -394,7 +394,8 @@ uint8_t *cprm_get_mkb( dvdcss_t dvdcss )
     if ( total_packs < 1 )
         return NULL;
 
-    p_mkb = malloc( total_packs * CPRM_MKB_PACK_SIZE - 16 );
+    *p_mkb_len = (size_t) total_packs * CPRM_MKB_PACK_SIZE - 16;
+    p_mkb = malloc( *p_mkb_len );
 
     if (!p_mkb)
         return NULL;
@@ -420,7 +421,7 @@ uint8_t *cprm_get_mkb( dvdcss_t dvdcss )
 /* This function retrieves the main key used to decryption; this key is derived
  * from applying the C2 cypher to the MKB and the DVD-Audio player device keys,
  * as well as a unique album_id and media_id */
-int process_mkb( uint8_t *p_mkb, device_key_t *p_dev_keys, int nr_dev_keys, uint64_t *p_media_key )
+int process_mkb( uint8_t *p_mkb, size_t mkb_len, device_key_t *p_dev_keys, int nr_dev_keys, uint64_t *p_media_key )
 {
     int mkb_pos, length, i, i_dev_key, no_more_keys, no_more_records;
     uint8_t record_type, column;
@@ -430,13 +431,16 @@ int process_mkb( uint8_t *p_mkb, device_key_t *p_dev_keys, int nr_dev_keys, uint
     i_dev_key = no_more_keys = 0;
     buffer = media_key = verification_data = 0;
 
-    while ( !no_more_keys )
+    while ( !no_more_keys && i_dev_key < nr_dev_keys )
     {
         /* skip the file identifier and the length */
         mkb_pos = 16;
         no_more_records = 0;
         while (!no_more_records)
         {
+            if ( mkb_pos < 0 || (size_t) mkb_pos + 4 > mkb_len )
+                break;
+
             record_type = *(uint8_t *) &p_mkb[mkb_pos];
             memcpy( &length, &p_mkb[mkb_pos], sizeof( length ) );
             length &= 0xffffff00;
@@ -444,6 +448,8 @@ int process_mkb( uint8_t *p_mkb, device_key_t *p_dev_keys, int nr_dev_keys, uint
 
             if (length >= 12)
             {
+                if ( (size_t) mkb_pos + 12 > mkb_len )
+                    break;
                 memcpy( &buffer, &p_mkb[mkb_pos + 4], sizeof( buffer ) );
             }
             else
@@ -483,6 +489,8 @@ int process_mkb( uint8_t *p_mkb, device_key_t *p_dev_keys, int nr_dev_keys, uint
                     if ( no_more_keys )
                         break;
                     if ( 12 + p_dev_keys[i_dev_key].row * 8 + 8 > length )
+                        break;
+                    if ( (size_t) mkb_pos + 12 + p_dev_keys[i_dev_key].row * 8 + 8 > mkb_len )
                         break;
                     memcpy( &buffer, &p_mkb[mkb_pos + 12 + p_dev_keys[i_dev_key].row * 8], sizeof( buffer ) );
                     B2N_64( buffer );
@@ -564,7 +572,7 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
             /* the input is the media key block */
             p_mkb = p_input;
             if ( cppm_set_id_album( dvdcss ) == 0 )
-                ret = process_mkb( p_mkb, cppm_device_keys,
+                ret = process_mkb( p_mkb, CPRM_MKB_SIZE, cppm_device_keys,
                         sizeof(cppm_device_keys) / sizeof(*cppm_device_keys),
                         &dvdcss->cpxm->media_key );
             free( p_mkb );
@@ -573,10 +581,11 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
         case COPYRIGHT_PROTECTION_CPRM:
             if ( cprm_set_id_media( dvdcss ) == 0 )
             {
-                p_mkb = cprm_get_mkb( dvdcss );
+                size_t mkb_len = 0;
+                p_mkb = cprm_get_mkb( dvdcss, &mkb_len );
                 if ( p_mkb )
                 {
-                    ret = process_mkb( p_mkb, cprm_device_keys,
+                    ret = process_mkb( p_mkb, mkb_len, cprm_device_keys,
                             sizeof( cprm_device_keys ) / sizeof( *cprm_device_keys ),
                             &dvdcss->cpxm->media_key );
                     free( p_mkb );
