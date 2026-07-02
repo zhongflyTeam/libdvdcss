@@ -601,7 +601,7 @@ LIBDVDCSS_EXPORT int dvdcpxm_init( dvdcss_t dvdcss, uint8_t *p_input )
                     /* decrypt the encrypted title key */
                     uint64_t k_te;
                     READ64_BE( k_te , p_input );
-                    uint64_t k_t = c2_dec( k_mu, k_te ) & 0x00ffffffffffffff;
+                    uint64_t k_t = c2_dec( k_te, k_mu ) & 0x00ffffffffffffff;
 
                     /* store decrypted title key for vr decryption */
                     cpxm->vr_k_t = k_t;
