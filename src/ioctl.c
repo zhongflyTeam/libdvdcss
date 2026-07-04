@@ -149,6 +149,8 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     rdc.command[ 7 ] = DVD_STRUCT_COPYRIGHT;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     *pi_copyright = p_buffer[ 4 ];
 
@@ -279,11 +281,8 @@ int ioctl_ReadDiscKey( int i_fd, const int *pi_agid, uint8_t *p_key )
     rdc.command[ 10 ] = *pi_agid << 6;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    if( i_ret < 0 )
-    {
-        return i_ret;
-    }
+    if( i_ret < 0 || rdc.scsi_status != 0 )
+		return -1;
 
     memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
 
@@ -407,6 +406,8 @@ int ioctl_ReadTitleKey( int i_fd, const int *pi_agid, int i_pos, uint8_t *p_key 
     rdc.command[ 10 ] = DVD_REPORT_TITLE_KEY | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
 
@@ -533,6 +534,8 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     rdc.command[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     *pi_agid = p_buffer[ 7 ] >> 6;
 
@@ -628,6 +631,8 @@ int ioctl_ReportChallenge( int i_fd, const int *pi_agid, uint8_t *p_challenge )
     rdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
 
@@ -736,6 +741,8 @@ int ioctl_ReportASF( int i_fd, int *pi_asf )
     rdc.command[ 10 ] = DVD_REPORT_ASF;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     *pi_asf = p_buffer[ 7 ] & 1;
 
@@ -846,6 +853,8 @@ int ioctl_ReportKey1( int i_fd, const int *pi_agid, uint8_t *p_key )
     rdc.command[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
 
@@ -945,6 +954,8 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
     rdc.command[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 0 );
@@ -1257,6 +1268,8 @@ int ioctl_SendChallenge( int i_fd, const int *pi_agid, const uint8_t *p_challeng
     memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 16 );
@@ -1366,6 +1379,8 @@ int ioctl_SendKey2( int i_fd, const int *pi_agid, const uint8_t *p_key )
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 12 );
@@ -1478,6 +1493,8 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     rdc.command[ 10 ] = DVD_REPORT_RPC;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
 
     *p_type = p_buffer[ 4 ] >> 6;
     *p_mask = p_buffer[ 5 ];
