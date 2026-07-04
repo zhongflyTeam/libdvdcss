@@ -17,15 +17,17 @@ Changes between 1.4.3 and 1.5.0:
     Add new dvdcpxm.h header for dvdcpxm function calls
     Add dvdcpxm_read, dvdcpxm_readv, and dvdcpxm_seek functions
     Add initialization and cleanup functions: dvdcpxm_init, dvdcpxm_close
-  * Switch build system to Meson, and removal of autotools support
-  * Miscellaneous cleanups and improvements to support more OSes and compilers
+  * Switch build system to Meson and remove autotools and Visual Studio files
+  * Fix public header include paths
+  * Fix build issues with older compilers and scsi/sg.h detection
+  * Miscellaneous CI, documentation, and platform cleanups
 
 
 Changes between 1.4.2 and 1.4.3:
 --------------------------------
 
   * Fix opening non-ASCII paths in Windows
-  * Fix potential buffer overflow if PATH_MAX is reached
+  * Avoid potential buffer overflow if PATH_MAX is reached
 
 
 Changes between 1.4.1 and 1.4.2:
@@ -38,15 +40,18 @@ Changes between 1.4.1 and 1.4.2:
 Changes between 1.4.0 and 1.4.1:
 --------------------------------
 
-  * Fix crashes in cache directory creation
-  * Fix cases where the cache directory was not used
+  * Fix crashes in cache directory creation and usage, including DVDCSS_CACHE
+    and empty home directory cases
+  * Fix key cache storage in ~/.dvdcss
+  * Avoid closing callback stream handles
 
 
 Changes between 1.3.99 and 1.4.0:
 ---------------------------------
 
   * Add key caching on Android
-  * Fix leaks, win32 build breakage, file descriptor initialization
+  * Fix leaks, Win32 build breakage, readv buffer initialization, and file
+    descriptor handling
   * Expose version.h
 
 
@@ -57,12 +62,14 @@ Changes between 1.3.0 and 1.3.99:
   * Drop support for Windows 9x and Windows NT.
     Windows 2000 is now required.
   * Replace BeOS support by Haiku support.
-  * Add dvdcss_open_stream() to public API. This allows installing custom
+  * Add dvdcss_open_stream() to the public API. This allows installing custom
     callback functions for accessing DVD, e.g. over the network.
   * dvdcss_error() now returns "const char *" instead of "char *".
   * Drop support for MSVC versions before 2010.
   * Raw device access now errors out if the device cannot be opened.
-  * Miscellaneous cleanups to code, documentation, build system.
+  * Add support for building under MSYS2 and fix MinGW-CE detection.
+  * Improve cache directory handling and error checking.
+  * Miscellaneous cleanups to code, documentation, and build system.
 
 
 Changes between 1.2.13 and 1.3.0:
@@ -74,7 +81,8 @@ Changes between 1.2.13 and 1.3.0:
     - the variable dvdcss_interface_2
   * Drop support for Windows 98 and Windows NT 4.0.
     Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required.
-  * Support for Android
+  * Add support for Android.
+  * Fix MSVC and Solaris build issues and update Doxygen
 
 
 Changes between 1.2.12 and 1.2.13:
