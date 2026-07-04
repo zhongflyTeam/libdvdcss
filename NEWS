@@ -1,13 +1,19 @@
---------------------------------
 Changes between 1.5.0 and 1.6.0:
 --------------------------------
 
+  * Add support for CPRM (Content Protection for Recordable Media) decryption
+    for CPRM-protected DVD media (DVD-RW for example)
   * Add dvdcss_get_encryption_type function to the public API
-    This allows applications to query the disc's copyright protection system
-    type (CPST) directly from the drive, enabling better distinction between
-    CSS/CPPM and CPRM protected media during initialization.
-  * Added support for CPRM (Content Protection for Recordable Media) decryption.
-  * Updated dvdcpxm_setup to allow context reuse via NULL arguments and to accept a raw CPRM key in place of the MKB.
+    This allows querying the disc's copyright protection system type (CPST)
+    to detect CSS/CPPM and CPRM protected media
+  * Update dvdcpxm_setup to allow context reuse via NULL arguments and to
+    accept a raw CPRM key in place of the MKB
+  * Improve CPXM/CPPM/CPRM error handling, context lifetime, and cleanup
+  * Fix CPRM decryption and Darwin CPRM ioctl paths
+  * Fix CPPM decryption cache teardown and copy-control handling
+  * Fix OS/2 build issues and add CPRM media ID/MKB pack ioctl support
+  * Fix FreeBSD and PATH_MAX build issues
+  * Improve Windows drive opening support
 
 
 Changes between 1.4.3 and 1.5.0:
