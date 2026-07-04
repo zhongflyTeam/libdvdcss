@@ -1077,6 +1077,27 @@ int ioctl_ReadCPRMMediaId(int i_fd,int *p_agid, uint8_t *p_data_buffer)
             p_data_buffer + 4,
             CPRM_MEDIA_ID_SIZE);
 
+#elif defined( __HAIKU__ )
+	raw_device_command rdc = { 0 };
+    uint8_t dvdbs[CPRM_MEDIA_ID_SIZE + 4];
+    rdc.data = dvdbs;
+    rdc.data_length = sizeof(dvdbs); \
+    HaikuInitRDC( &rdc, GPCMD_READ_DVD_STRUCTURE );
+
+    rdc.command[ 7 ]  = CPRM_STRUCT_MEDIA_ID;
+    rdc.command[ 10 ] = *p_agid << 6;
+
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+    if( i_ret == 0 && rdc.scsi_status != 0 )
+        i_ret = -1;
+    if( i_ret == 0 )
+        memcpy( p_buffer, dvdbs + 4, CPRM_MEDIA_ID_SIZE);
+
 #elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_read_structure_t dvd = { 0 };
     uint8_t dvdbs[CPRM_MEDIA_ID_SIZE + 4] = { 0 };
@@ -1159,6 +1180,32 @@ int ioctl_ReadCPRMMKBPack(int i_fd, int *p_agid, int mkb_pack, uint8_t *p_mkb_pa
     *p_total_packs = sptd_buf[3];
     memcpy( p_mkb_pack, sptd_buf + 4, CPRM_MKB_PACK_SIZE );
     free( sptd_buf );
+
+#elif defined( __HAIKU__ )
+	raw_device_command rdc = { 0 };
+	uint8_t *sptd_buf = malloc( CPRM_MKB_PACK_SIZE + 4 );
+    rdc.data = sptd_buf;
+    rdc.data_length = CPRM_MKB_PACK_SIZE + 4; \
+    HaikuInitRDC( &rdc, GPCMD_READ_DVD_STRUCTURE );
+
+    rdc.command[ 2 ] = (uint8_t)( ( mkb_pack >> 24 ) & 0xFF );
+    rdc.command[ 3 ] = (uint8_t)( ( mkb_pack >> 16 ) & 0xFF );
+    rdc.command[ 4 ] = (uint8_t)( ( mkb_pack >> 8 )  & 0xFF );
+    rdc.command[ 5 ] = (uint8_t)( mkb_pack & 0xFF );
+    rdc.command[ 7 ]  = CPRM_STRUCT_MKB;
+    rdc.command[ 10 ] = *p_agid << 6;
+
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+    if( i_ret < 0 || rdc.scsi_status != 0 )
+    {
+        free(sptd_buf);
+        return i_ret;
+    }
+
+    *p_total_packs = sptd_buf[3];
+    memcpy( p_mkb_pack, sptd_buf + 4, CPRM_MKB_PACK_SIZE);
+    free(sptd_buf);
 
 #elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_read_structure_t dvd = { 0 };
