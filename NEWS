@@ -14,6 +14,7 @@ Changes between 1.5.0 and 1.6.0:
   * Fix OS/2 build issues and add CPRM media ID/MKB pack ioctl support
   * Fix FreeBSD and PATH_MAX build issues
   * Improve Windows drive opening support
+  * Add proper Haiku support
 
 
 Changes between 1.4.3 and 1.5.0:
