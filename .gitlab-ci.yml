@@ -42,12 +42,7 @@ build-raspberry:
 build-macos-arm64:
     extends: .build-docker
     tags:
-        - macos-m1
-    before_script:
-        - python3 -m venv .venv
-        - . .venv/bin/activate
-        - pip install --upgrade pip
-        - pip install meson==1.9.0 ninja==1.13.0
+        - macos-xcode26
 
 build-macos:
     extends: .build-docker
