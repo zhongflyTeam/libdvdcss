@@ -64,7 +64,7 @@ build-win:
 
 build-win-arm:
     extends: .build-cross
-    image: registry.videolan.org/vlc-debian-llvm-ucrt:20250826105319
+    image: registry.videolan.org/vlc-debian-llvm-ucrt:20260611225331
     parallel:
         matrix:
             - CROSSFILE: [armv7-w64-mingw32, aarch64-w64-mingw32]
