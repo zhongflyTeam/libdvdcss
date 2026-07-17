@@ -15,13 +15,13 @@ variables:
         - docker
         - amd64
     script:
-        - meson setup build
+        - meson setup build -Dwarning_level=2
         - meson compile -C build
 
 .build-cross:
     extends: .build-docker
     script:
-        - meson setup build --cross-file package/crossfiles/${CROSSFILE}.meson
+        - meson setup build -Dwarning_level=2 --cross-file package/crossfiles/${CROSSFILE}.meson
         - meson compile -C build
 
 build-debian:
