@@ -38,6 +38,26 @@ elif host_machine.system() == 'sunos'
     test_args += '-D_POSIX_C_SOURCE=200809L'
 endif
 
+add_project_arguments(cc.get_supported_arguments([
+    '-Wsign-compare',
+    '-Wundef',
+    '-Wpointer-arith',
+    '-Wvolatile-register-var',
+    '-Wformat',
+    '-Wformat-security',
+    '-Wduplicated-branches',
+    '-Wduplicated-cond',
+    '-Wbad-function-cast',
+    '-Wwrite-strings',
+    '-Wmissing-prototypes',
+    '-Werror-implicit-function-declaration',
+    '-Winit-self',
+    '-Wlogical-op',
+    '-Wshadow=local',
+    '-Wmultistatement-macros',
+    '-pipe'
+]), language: ['c'])
+
 # Header checks
 
 check_headers = [
