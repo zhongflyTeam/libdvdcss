@@ -58,6 +58,23 @@ add_project_arguments(cc.get_supported_arguments([
     '-pipe'
 ]), language: ['c'])
 
+if get_option('extra_checks')
+    add_project_arguments(cc.get_supported_arguments([
+        '-Werror-implicit-function-declaration',
+        '-Werror=missing-field-initializers',
+        '-Werror=format',
+        '-Werror=return-mismatch',
+        '-Werror=incompatible-pointer-types',
+        '-Werror=restrict',
+        '-Werror=int-conversion',
+        '-Werror=implicit-int',
+        '-Werror=declaration-missing-parameter-type',
+        '-Werror=excess-initializers',
+        '-Werror=unterminated-string-initialization',
+    ]), language: ['c'])
+endif
+
+
 # Header checks
 
 check_headers = [
